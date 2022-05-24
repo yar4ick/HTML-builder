@@ -28,16 +28,27 @@ function createDir(path) {
 
 function mergeStyles(dirStylesPath, dirBundlePath) {
   const streamToWrite = fs.createWriteStream(dirBundlePath);
+  const FIRST_CSS_FILE = "header.css";
 
   fs.readdir(dirStylesPath, { withFileTypes: true }, (err, files) => {
     if (err) {
       return console.log("Unable to scan directory: " + err);
     }
 
+    for (let file of files) {
+      filePath = path.join(dirStylesPath, file.name);
+      if (file.name === FIRST_CSS_FILE) {
+        const streamToRead = fs.createReadStream(filePath, "utf-8");
+        streamToRead.on("data", (chunk) => {
+          streamToWrite.write(chunk);
+        });
+      }
+    }
+
     files.forEach((file) => {
       fileExtension = file.name.slice(file.name.lastIndexOf(".") + 1);
       filePath = path.join(dirStylesPath, file.name);
-      if (fileExtension === "css") {
+      if (fileExtension === "css" && file.name != FIRST_CSS_FILE) {
         const streamToRead = fs.createReadStream(filePath, "utf-8");
         streamToRead.on("data", (chunk) => {
           streamToWrite.write(chunk);
