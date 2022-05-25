@@ -58,8 +58,11 @@ function mergeStyles(dirStylesPath, dirBundlePath) {
   });
 }
 
-function copyDir(dirPath, dirPathCopy) {
-  fsPromises.mkdir(dirPathCopy, { recursive: true });
+async function copyDir(dirPath, dirPathCopy) {
+  await fs.promises.rm(dirPathCopy, { recursive: true, force: true });
+  fs.mkdir(dirPathCopy, { recursive: true }, (err) => {
+    if (err) throw err;
+  });
 
   fs.readdir(dirPath, { withFileTypes: true }, (err, files) => {
     if (err) {
